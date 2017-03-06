@@ -51,6 +51,28 @@ def listing_show(listing_id):
 
     return render_template('listing_show.html', list_id=lst.id, listing=lst)
 
+@app.route('/listing/edit/<listing_id>', methods=['GET','POST'])
+def listing_edit(listing_id):
+    form = ListingForm(request.form)
+    if request.method == 'POST':
+        if form.validate() == False:
+          flash('All fields are required.')
+          return render_template('listing_edit.html', form=form)
+        else:
+          lst = Listing.query.get(listing_id)
+          lst.name=form.name.data
+          lst.description= form.description.data
+          lst.price=form.price.data
+          db.session.commit()
+          flash('You edits were saved.')
+          return render_template('listing_edit.html', form=form)
+    else:
+        try:
+          lst = Listing.query.get(listing_id)
+          lstForm = ListingForm(obj=lst)
+        except:
+          abort(404)
+        return render_template('listing_edit.html', form=lstForm)
 
 @app.route('/about')
 def about():
